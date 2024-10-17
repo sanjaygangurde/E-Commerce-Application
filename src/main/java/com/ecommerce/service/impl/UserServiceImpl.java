@@ -8,13 +8,21 @@ import com.ecommerce.payloads.PageableResponse;
 import com.ecommerce.repository.UserRepo;
 import com.ecommerce.service.UserServiceI;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,12 +30,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserServiceI {
 
+    private Logger logger= LoggerFactory.getLogger(UserServiceImpl.class);
+
 
     @Autowired
     private UserRepo userRepo;
 
     @Autowired
     private ModelMapper mapper;
+
+    @Value("${user.profile.image.path}")
+    private String imagePath;
 
 
     @Override
@@ -62,7 +75,21 @@ public class UserServiceImpl implements UserServiceI {
     public void deleteUser(String userId) {
 
         User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String fullPath = imagePath + user.getUserImage();
+
+        Path path= Paths.get(fullPath);
+        try {
+            Files.delete(path);
+        } catch (NoSuchFileException e) {
+            logger.info("User image is not found in folder");
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
         userRepo.delete(user);
+
     }
 
     @Override
