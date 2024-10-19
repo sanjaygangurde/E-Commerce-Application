@@ -1,7 +1,9 @@
 package com.ecommerce.controller;
 
+import com.ecommerce.dtos.CategoryDto;
 import com.ecommerce.dtos.UserDto;
 import com.ecommerce.payloads.ImageResponse;
+import com.ecommerce.service.CategoryI;
 import com.ecommerce.service.FileServiceI;
 import com.ecommerce.service.UserServiceI;
 import org.slf4j.Logger;
@@ -32,8 +34,13 @@ public class FileController {
     @Autowired
     private UserServiceI userServiceI;
 
+    @Autowired
+    private CategoryI categoryI;
+
     @Value("${user.profile.image.path}")
     private String imageUploadPath;
+
+
 
 
     @PostMapping("/image/{userId}")
